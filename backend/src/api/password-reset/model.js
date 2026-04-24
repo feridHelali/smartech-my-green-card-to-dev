@@ -1,35 +1,48 @@
-import mongoose, { Schema } from 'mongoose'
 import { uid } from 'rand-token'
+import prisma from '../../services/db'
 
-const passwordResetSchema = new Schema({
-  user: {
-    type: Schema.ObjectId,
-    ref: 'User',
-    index: true
-  },
-  token: {
-    type: String,
-    unique: true,
-    index: true,
-    default: () => uid(32)
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    expires: 3600
-  }
-})
+const TTL_HOURS = 1
 
-passwordResetSchema.methods = {
-  view (full) {
-    return {
-      user: this.user.view(full),
-      token: this.token
+function attachMethods (reset) {
+  if (!reset) return null
+
+  return {
+    ...reset,
+
+    view (full) {
+      return {
+        token: this.token,
+        user: this.user ? { id: this.user.id, name: this.user.name, email: this.user.email } : null
+      }
     }
   }
 }
 
-const model = mongoose.model('PasswordReset', passwordResetSchema)
+const PasswordReset = {
+  async create ({ user }) {
+    const token = uid(32)
+    const reset = await prisma.passwordReset.create({
+      data: { token, userId: user.id },
+      include: { user: true }
+    })
+    return attachMethods(reset)
+  },
 
-export const schema = model.schema
-export default model
+  async findOne (where) {
+    const expiryThreshold = new Date(Date.now() - TTL_HOURS * 60 * 60 * 1000)
+    const reset = await prisma.passwordReset.findFirst({
+      where: { ...where, createdAt: { gte: expiryThreshold } },
+      include: { user: true }
+    })
+    return attachMethods(reset)
+  },
+
+  async deleteMany (where) {
+    const prismaWhere = {}
+    if (where.user && where.user.id) prismaWhere.userId = where.user.id
+    return prisma.passwordReset.deleteMany({ where: prismaWhere })
+  }
+}
+
+export default PasswordReset
+export const schema = {}

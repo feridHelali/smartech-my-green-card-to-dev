@@ -4,7 +4,7 @@
   "main": "src",
   "private": true,
   "scripts": {
-    "start": "node .",
+    "start": "nodemon .",
     "test": "jest",
     "coverage": "npm test -- --coverage",
     "postcoverage": "opn coverage/lcov-report/index.html",
@@ -16,7 +16,9 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/test/setup.js"]
+    "setupFilesAfterEnv": [
+      "<rootDir>/test/setup.js"
+    ]
   },
   "devDependencies": {
     "apidoc": "^0.20.0",
@@ -34,7 +36,7 @@
     "jest-cli": "^25.1.0",
     "mongodb-memory-server": "^6.3.3",
     "nock": "^12.0.2",
-    "nodemon": "^2.0.2",
+    "nodemon": "^2.0.22",
     "open-cli": "^6.0.0",
     "sinon": "^4.0.1",
     "supertest": "^4.0.2"
@@ -46,6 +48,8 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/register": "^7.9.0",
     "@babel/runtime": "^7.9.0",
+    "@prisma/client": "^7.8.0",
+    "@sendgrid/mail": "^6.5.4",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
     "body-parser": "^1.19.0",
@@ -62,11 +66,10 @@
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.0",
+    "prisma": "^7.8.0",
     "querymen": "^2.1.4",
     "rand-token": "^0.4.0",
     "request": "^2.88.2",
     "request-promise": "^4.2.5"
-,
-    "@sendgrid/mail": "^6.5.4"
   }
 }

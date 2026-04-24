@@ -1,115 +1,115 @@
 import crypto from 'crypto'
 import bcrypt from 'bcrypt'
-import randtoken from 'rand-token'
-import mongoose, { Schema } from 'mongoose'
-import mongooseKeywords from 'mongoose-keywords'
+import { uid } from 'rand-token'
+import prisma from '../../services/db'
 import { env } from '../../config'
 
 const roles = ['user', 'admin']
 
-const userSchema = new Schema({
-  email: {
-    type: String,
-    match: /^\S+@\S+\.\S+$/,
-    required: true,
-    unique: true,
-    trim: true,
-    lowercase: true
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
-  name: {
-    type: String,
-    index: true,
-    trim: true
-  },
-  services: {
-    facebook: String,
-    github: String,
-    google: String
-  },
-  role: {
-    type: String,
-    enum: roles,
-    default: 'user'
-  },
-  picture: {
-    type: String,
-    trim: true
+function gravatar (email) {
+  const hash = crypto.createHash('md5').update(email).digest('hex')
+  return `https://gravatar.com/avatar/${hash}?d=identicon`
+}
+
+function attachMethods (user) {
+  if (!user) return null
+
+  return {
+    ...user,
+
+    view (full) {
+      const base = { id: this.id, name: this.name, picture: this.picture }
+      if (full) {
+        base.email = this.email
+        base.createdAt = this.createdAt
+      }
+      return base
+    },
+
+    authenticate (password) {
+      return bcrypt.compare(password, this.password).then((valid) => valid ? this : false)
+    },
+
+    set (data) {
+      Object.assign(this, data)
+      return this
+    },
+
+    async save () {
+      const { id, createdAt, updatedAt, passwordResets, ...data } = this
+      const updated = await prisma.user.update({ where: { id }, data })
+      return attachMethods(updated)
+    },
+
+    async remove () {
+      return prisma.user.delete({ where: { id: this.id } })
+    }
   }
-}, {
-  timestamps: true
-})
+}
 
-userSchema.path('email').set(function (email) {
-  if (!this.picture || this.picture.indexOf('https://gravatar.com') === 0) {
-    const hash = crypto.createHash('md5').update(email).digest('hex')
-    this.picture = `https://gravatar.com/avatar/${hash}?d=identicon`
-  }
-
-  if (!this.name) {
-    this.name = email.replace(/^(.+)@.+$/, '$1')
-  }
-
-  return email
-})
-
-userSchema.pre('save', function (next) {
-  if (!this.isModified('password')) return next()
-
-  /* istanbul ignore next */
+async function hashPassword (password) {
   const rounds = env === 'test' ? 1 : 9
+  return bcrypt.hash(password, rounds)
+}
 
-  bcrypt.hash(this.password, rounds).then((hash) => {
-    this.password = hash
-    next()
-  }).catch(next)
-})
+const User = {
+  roles,
+  schema: { tree: { email: { type: String }, password: { type: String } } },
 
-userSchema.methods = {
-  view (full) {
-    const view = {}
-    let fields = ['id', 'name', 'picture']
+  async find (where = {}, select = null, cursor = {}) {
+    const { limit = 30, skip = 0 } = cursor
+    const users = await prisma.user.findMany({ where, skip, take: limit })
+    return users.map(attachMethods)
+  },
 
-    if (full) {
-      fields = [...fields, 'email', 'createdAt']
+  async count (where = {}) {
+    return prisma.user.count({ where })
+  },
+
+  async findById (id) {
+    if (!id) return null
+    const user = await prisma.user.findUnique({ where: { id: String(id) } })
+    return attachMethods(user)
+  },
+
+  async findOne (where) {
+    const user = await prisma.user.findFirst({ where })
+    return attachMethods(user)
+  },
+
+  async create (data) {
+    const email = data.email.toLowerCase().trim()
+    const password = await hashPassword(data.password)
+    const name = data.name || email.replace(/^(.+)@.+$/, '$1')
+    const picture = data.picture || gravatar(email)
+
+    const user = await prisma.user.create({
+      data: { ...data, email, password, name, picture }
+    })
+    return attachMethods(user)
+  },
+
+  async createFromService ({ service, id, email, name, picture }) {
+    const serviceField = `${service}Id`
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ [serviceField]: id }, { email }] }
+    })
+
+    if (existing) {
+      const updated = await prisma.user.update({
+        where: { id: existing.id },
+        data: { [serviceField]: id, name, picture }
+      })
+      return attachMethods(updated)
     }
 
-    fields.forEach((field) => { view[field] = this[field] })
-
-    return view
-  },
-
-  authenticate (password) {
-    return bcrypt.compare(password, this.password).then((valid) => valid ? this : false)
-  }
-
-}
-
-userSchema.statics = {
-  roles,
-
-  createFromService ({ service, id, email, name, picture }) {
-    return this.findOne({ $or: [{ [`services.${service}`]: id }, { email }] }).then((user) => {
-      if (user) {
-        user.services[service] = id
-        user.name = name
-        user.picture = picture
-        return user.save()
-      } else {
-        const password = randtoken.generate(16)
-        return this.create({ services: { [service]: id }, email, password, name, picture })
-      }
+    const password = await hashPassword(uid(16))
+    const user = await prisma.user.create({
+      data: { email, password, name, picture, [serviceField]: id }
     })
+    return attachMethods(user)
   }
 }
 
-userSchema.plugin(mongooseKeywords, { paths: ['email', 'name'] })
-
-const model = mongoose.model('User', userSchema)
-
-export const schema = model.schema
-export default model
+export const schema = User.schema
+export default User

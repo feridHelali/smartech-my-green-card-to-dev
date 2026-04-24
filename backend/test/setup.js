@@ -1,6 +1,5 @@
 import { EventEmitter } from 'events'
-import MongodbMemoryServer from 'mongodb-memory-server'
-import mongoose from '../src/services/mongoose'
+import { PrismaClient } from '@prisma/client'
 
 EventEmitter.defaultMaxListeners = Infinity
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 10000
@@ -21,26 +20,17 @@ global.TypeError = TypeError
 global.parseInt = parseInt
 global.parseFloat = parseFloat
 
-let mongoServer
+const prisma = new PrismaClient()
 
 beforeAll(async () => {
-  mongoServer = new MongodbMemoryServer()
-  const mongoUri = await mongoServer.getUri()
-  await mongoose.connect(mongoUri, undefined, (err) => {
-    if (err) console.error(err)
-  })
+  await prisma.$connect()
 })
 
 afterAll(async () => {
-  await mongoose.disconnect()
-  await mongoServer.stop()
+  await prisma.$disconnect()
 })
 
 afterEach(async () => {
-  const { collections } = mongoose.connection
-  const promises = []
-  Object.keys(collections).forEach((collection) => {
-    promises.push(collections[collection].deleteMany({}))
-  })
-  await Promise.all(promises)
+  await prisma.passwordReset.deleteMany({})
+  await prisma.user.deleteMany({})
 })

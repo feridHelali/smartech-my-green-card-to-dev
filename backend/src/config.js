@@ -29,30 +29,13 @@ const config = {
     defaultEmail: 'no-reply@backend.com',
     sendgridKey: requireProcessEnv('SENDGRID_KEY'),
     masterKey: requireProcessEnv('MASTER_KEY'),
-    jwtSecret: requireProcessEnv('JWT_SECRET'),
-    mongo: {
-      options: {
-        useUnifiedTopology: true,
-        useNewUrlParser: true,
-        useCreateIndex: true
-      }
-    }
+    jwtSecret: requireProcessEnv('JWT_SECRET')
   },
-  test: { },
-  development: {
-    mongo: {
-      uri: 'mongodb://localhost/backend-dev',
-      options: {
-        debug: true
-      }
-    }
-  },
+  test: {},
+  development: {},
   production: {
     ip: process.env.IP || undefined,
-    port: process.env.PORT || 8080,
-    mongo: {
-      uri: process.env.MONGODB_URI || 'mongodb://localhost/backend'
-    }
+    port: process.env.PORT || 8080
   }
 }
 

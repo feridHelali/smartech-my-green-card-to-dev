@@ -1,5 +1,4 @@
 import passport from 'passport'
-import { Schema } from 'bodymen'
 import { BasicStrategy } from 'passport-http'
 import { Strategy as BearerStrategy } from 'passport-http-bearer'
 import { Strategy as JwtStrategy, ExtractJwt } from 'passport-jwt'
@@ -7,7 +6,7 @@ import { jwtSecret, masterKey } from '../../config'
 import * as facebookService from '../facebook'
 import * as githubService from '../github'
 import * as googleService from '../google'
-import User, { schema } from '../../api/user/model'
+import User from '../../api/user/model'
 
 export const password = () => (req, res, next) =>
   passport.authenticate('password', { session: false }, (err, user, info) => {
@@ -46,22 +45,18 @@ export const token = ({ required, roles = User.roles } = {}) => (req, res, next)
   })(req, res, next)
 
 passport.use('password', new BasicStrategy((email, password, done) => {
-  const userSchema = new Schema({ email: schema.tree.email, password: schema.tree.password })
+  if (!email || !password) return done({ param: 'email', message: 'Missing credentials' })
 
-  userSchema.validate({ email, password }, (err) => {
-    if (err) done(err)
-  })
-
-  User.findOne({ email }).then((user) => {
+  User.findOne({ email: email.toLowerCase() }).then((user) => {
     if (!user) {
       done(true)
       return null
     }
-    return user.authenticate(password, user.password).then((user) => {
+    return user.authenticate(password).then((user) => {
       done(null, user)
       return null
     }).catch(done)
-  })
+  }).catch(done)
 }))
 
 passport.use('facebook', new BearerStrategy((token, done) => {
