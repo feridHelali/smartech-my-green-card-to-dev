@@ -1,0 +1,46 @@
+services:
+  # ── Backend API (Express + Prisma + SQLite) ───────────────────────────────
+  - type: web
+    name: mygreencard-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npx prisma migrate deploy && node prisma/seed.js
+    startCommand: node src/index.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        value: file:./prod.db
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MASTER_KEY
+        generateValue: true
+      - key: SENDGRID_KEY
+        value: placeholder_update_in_dashboard
+
+  # ── Frontend (Vite React Static Site) ─────────────────────────────────────
+  - type: web
+    name: mygreencard-webapp
+    runtime: static
+    rootDir: webapp
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    plan: free
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: mygreencard-api
+          type: web
+          property: host
+    headers:
+      - path: /assets/*
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

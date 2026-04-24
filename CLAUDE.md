@@ -66,11 +66,11 @@ Four Passport strategies used across routes:
 | `POST /password-resets` | None |
 | `PUT /password-resets/:token` | None |
 
-### Data Models
+### Data Models (Prisma/SQLite)
 
-**User**: email (unique), bcrypt password (min 6), name, picture (Gravatar), role (`user`|`admin`), OAuth service IDs.
+**User**: id (UUID), email (unique), bcrypt password, name, picture (Gravatar auto-set), role (`user`|`admin`), `facebookId`/`githubId`/`googleId`.
 
-**PasswordReset**: references User, unique token, TTL of 1 hour — expires automatically.
+**PasswordReset**: id (UUID), userId FK, unique token, createdAt — TTL enforced in app layer (1 hour).
 
 ### Key Services (`backend/src/services/`)
 
@@ -81,9 +81,18 @@ Four Passport strategies used across routes:
 - `sendgrid` — password reset emails
 - `response` — shared HTTP helpers: `success()`, `notFound()`, `authorOrAdmin()`
 
+### Database (Prisma + SQLite)
+
+- Schema: `backend/prisma/schema.prisma`
+- Models: `User`, `PasswordReset`
+- Client singleton: `backend/src/services/db/index.js`
+- `npm run db:migrate` — run pending migrations
+- `npm run db:studio` — open Prisma Studio (visual DB browser)
+- The `*.db` files are git-ignored; `dev.db` is created on first migrate
+
 ### Environment Variables (see `backend/.env.example`)
 
-`MASTER_KEY`, `JWT_SECRET`, `SENDGRID_KEY`, MongoDB URI.
+`MASTER_KEY`, `JWT_SECRET`, `SENDGRID_KEY`, `DATABASE_URL` (e.g. `file:./dev.db`).
 
 ## Frontend Architecture
 

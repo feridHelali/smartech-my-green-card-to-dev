@@ -4,12 +4,16 @@
   "main": "src",
   "private": true,
   "scripts": {
+    "postinstall": "prisma generate",
     "start": "nodemon .",
     "test": "jest",
     "coverage": "npm test -- --coverage",
     "postcoverage": "opn coverage/lcov-report/index.html",
     "dev": "nodemon -i \"*.test.js\" .",
     "prod": "cross-env NODE_ENV=production nodemon -i \"*.test.js\" -r dotenv-safe/config .",
+    "db:migrate": "prisma migrate dev",
+    "db:studio": "prisma studio",
+    "db:seed": "node prisma/seed.js",
     "lint": "eslint src",
     "docs": "apidoc -i src -o docs && apidoc-markdown -p docs -o DOCS.md",
     "postdocs": "open-cli docs/index.html"
@@ -23,6 +27,7 @@
   "devDependencies": {
     "apidoc": "^0.20.0",
     "apidoc-markdown": "^0.2.1",
+    "autoprefixer": "^10.5.0",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^25.1.0",
     "cross-env": "^7.0.2",
@@ -38,8 +43,10 @@
     "nock": "^12.0.2",
     "nodemon": "^2.0.22",
     "open-cli": "^6.0.0",
+    "postcss": "^8.5.10",
     "sinon": "^4.0.1",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "tailwindcss": "^4.2.4"
   },
   "dependencies": {
     "@babel/core": "^7.9.0",
@@ -48,7 +55,7 @@
     "@babel/preset-env": "^7.9.0",
     "@babel/register": "^7.9.0",
     "@babel/runtime": "^7.9.0",
-    "@prisma/client": "^7.8.0",
+    "@prisma/client": "^6.19.3",
     "@sendgrid/mail": "^6.5.4",
     "bcrypt": "^4.0.1",
     "bluebird": "^3.7.2",
@@ -66,7 +73,7 @@
     "passport-http": "^0.3.0",
     "passport-http-bearer": "^1.0.1",
     "passport-jwt": "^4.0.0",
-    "prisma": "^7.8.0",
+    "prisma": "^6.19.3",
     "querymen": "^2.1.4",
     "rand-token": "^0.4.0",
     "request": "^2.88.2",

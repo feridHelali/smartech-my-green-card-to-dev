@@ -1,34 +1,34 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import Home from './pages/Home'
+import { CheatSheetList, CheatSheetDetail } from './pages/CheatSheets'
+import { MindMapList, MindMapDetail } from './pages/MindMaps'
+import { FeynmanList, FeynmanDetail } from './pages/Feynman'
+import Flashcards from './pages/Flashcards'
+import Slides from './pages/Slides'
+import Roadmaps from './pages/Roadmaps'
 
-function App() {
-  const [count, setCount] = useState(0)
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } }
+})
 
+export default function App () {
   return (
-    <div className="App">
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src="/vite.svg" className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </div>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cheat-sheets" element={<CheatSheetList />} />
+          <Route path="/cheat-sheets/:slug" element={<CheatSheetDetail />} />
+          <Route path="/mind-maps" element={<MindMapList />} />
+          <Route path="/mind-maps/:slug" element={<MindMapDetail />} />
+          <Route path="/feynman" element={<FeynmanList />} />
+          <Route path="/feynman/:slug" element={<FeynmanDetail />} />
+          <Route path="/flashcards" element={<Flashcards />} />
+          <Route path="/slides" element={<Slides />} />
+          <Route path="/roadmaps" element={<Roadmaps />} />
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
   )
 }
-
-export default App

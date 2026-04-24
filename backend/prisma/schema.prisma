@@ -30,3 +30,17 @@ model PasswordReset {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAt DateTime @default(now())
 }
+
+model Article {
+  id          String   @id @default(uuid())
+  slug        String   @unique
+  title       String
+  category    String
+  type        String
+  content     String
+  tags        String   @default("[]")
+  description String?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

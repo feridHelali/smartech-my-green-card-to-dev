@@ -54,7 +54,6 @@ async function hashPassword (password) {
 
 const User = {
   roles,
-  schema: { tree: { email: { type: String }, password: { type: String } } },
 
   async find (where = {}, select = null, cursor = {}) {
     const { limit = 30, skip = 0 } = cursor
@@ -111,5 +110,14 @@ const User = {
   }
 }
 
-export const schema = User.schema
+export const schema = {
+  tree: {
+    email: { type: String, match: /^\S+@\S+\.\S+$/, required: true, unique: true, trim: true, lowercase: true },
+    password: { type: String, required: true, minlength: 6 },
+    name: { type: String, trim: true },
+    picture: { type: String, trim: true },
+    role: { type: String, enum: roles, default: 'user' }
+  }
+}
+
 export default User
