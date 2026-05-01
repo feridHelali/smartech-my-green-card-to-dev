@@ -1,4 +1,5 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:9000'
+// "/api" works in both dev (Vite proxy → localhost:9000) and Docker (nginx proxy → backend:9000)
+const BASE = import.meta.env.VITE_API_URL ?? '/api'
 
 async function request<T>(path: string, opts?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {

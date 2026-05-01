@@ -297,15 +297,17 @@ curl http://localhost/
 
 ## Checklist
 
-- [ ] `backend/Dockerfile` créé et testé localement
-- [ ] `webapp/Dockerfile` créé et testé localement
-- [ ] `webapp/nginx.conf` configuré (SPA routing + proxy API)
-- [ ] `docker-compose.yml` à la racine créé
-- [ ] `.dockerignore` dans backend/ et webapp/
-- [ ] `.env.docker` template créé (sans secrets)
-- [ ] `docker-compose up --build` fonctionne end-to-end
-- [ ] GitHub Actions docker.yml créé
-- [ ] Secrets Docker Hub configurés dans GitHub
+- [x] `backend/Dockerfile` créé (multi-stage, Node 20 Alpine)
+- [x] `webapp/Dockerfile` créé (multi-stage, Nginx Alpine)
+- [x] `webapp/nginx.conf` configuré (SPA routing + proxy `/api/*` → backend)
+- [x] `docker-compose.yml` à la racine créé (healthcheck, volume SQLite)
+- [x] `.dockerignore` dans backend/ et webapp/
+- [x] `.env.docker` template créé (sans secrets)
+- [x] `vite.config.ts` mis à jour — proxy dev `/api` → localhost:9000
+- [x] `webapp/src/api/client.ts` mis à jour — BASE = `/api` par défaut
+- [x] `.github/workflows/docker.yml` créé (build + push Docker Hub, GHA cache)
+- [ ] `docker-compose up --build` testé end-to-end (nécessite Docker Desktop actif)
+- [ ] Secrets Docker Hub configurés dans GitHub (`DOCKER_USERNAME`, `DOCKER_TOKEN`)
 - [ ] Push vers Docker Hub réussi en CI
 - [ ] Déploiement VPS vérifié
 
