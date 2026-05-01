@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  # ── Backend API (Express + Prisma + SQLite) ────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: mygreencard-api
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: 9000
+      DATABASE_URL: file:/data/prod.db
+      JWT_SECRET: ${JWT_SECRET}
+      MASTER_KEY: ${MASTER_KEY}
+      SENDGRID_KEY: ${SENDGRID_KEY:-placeholder}
+    volumes:
+      - sqlite-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:9000/articles"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # ── Frontend (Vite → Nginx) ────────────────────────────────────────────────
+  webapp:
+    build:
+      context: ./webapp
+      dockerfile: Dockerfile
+      args:
+        # Uses nginx proxy /api/* → backend:9000 (same-origin, no CORS)
+        VITE_API_URL: /api
+    container_name: mygreencard-webapp
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+
+volumes:
+  sqlite-data:
+    driver: local
