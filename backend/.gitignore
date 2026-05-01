@@ -11,5 +11,6 @@ npm-debug.log
 .nyc_output
 coverage
 cassettes
-*.db
-*.db-journal
+# SQLite DB is committed to enable clone-and-go (seed is idempotent)
+# data/ dir is for Docker prod volumes
+data/

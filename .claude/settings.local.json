@@ -15,7 +15,9 @@
       "Bash(echo \"TSC_EXIT:$?\")",
       "Bash(npx vite *)",
       "Bash(dir \"D:\\\\51_Smartec_Deployment_VPS_Cours_Bac\\\\formation_ingenieur_web_dev\\\\designDocs\\\\02_add_js_core_porogramming_docs\\\\pdfs\" /b)",
-      "Bash(findstr \".md\")"
+      "Bash(findstr \".md\")",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\)\")",
+      "Bash(node prisma/seed.js)"
     ]
   }
 }

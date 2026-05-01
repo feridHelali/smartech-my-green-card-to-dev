@@ -31,7 +31,7 @@ graph TD
 ## Sub-Sprints
 
 ### SS-2.1 — GitHub Setup (15 min)
-- [ ] `git init` in project root (or confirm existing)
+- [x] `git init` in project root (confirmed — git repo exists on `main` branch)
 - [ ] Create `.gitignore` at root (node_modules, *.db, .env, dist)
 - [ ] Push to GitHub repo `MyGreenCardToJob`
 - [ ] Protect `main` branch (require PR to merge)
@@ -92,9 +92,9 @@ services:
         destination: /index.html
 ```
 
-### SS-2.4 — GitHub Actions CI (30 min)
+### SS-2.4 — GitHub Actions CI (30 min) ✅ DONE
 
-**.github/workflows/ci.yml**:
+**.github/workflows/ci.yml** — créé et opérationnel:
 ```yaml
 name: CI
 
@@ -138,9 +138,9 @@ jobs:
       - run: npm run build
 ```
 
-### SS-2.5 — Root render.yaml (Blueprint deploy)
+### SS-2.5 — Root render.yaml (Blueprint deploy) ✅ DONE
 
-Create `render.yaml` at project root so Render auto-provisions both services from one file.
+`render.yaml` créé à la racine du projet. Couvre backend (Web Service + seed) et frontend (Static Site).
 
 **Execution order**:
 1. Push to GitHub (SS-2.1)
@@ -171,9 +171,24 @@ When user accounts need persistence beyond restarts:
 
 ## Checklist Before Deploy
 
-- [ ] All secrets out of code (`.env` git-ignored ✓)
-- [ ] `prisma/migrations/` committed to git ✓
-- [ ] `npm run build` passes locally ✓
-- [ ] Backend `/articles` responds correctly ✓
-- [ ] `VITE_API_URL` points to production API URL
-- [ ] SPA routing: `/* → /index.html` rewrite in render.yaml ✓
+- [x] All secrets out of code (`.env` git-ignored ✓)
+- [x] `prisma/migrations/` committed to git ✓
+- [ ] `npm run build` passes locally — à vérifier
+- [ ] Backend `/articles` responds correctly — à vérifier
+- [ ] `VITE_API_URL` points to production API URL — à configurer dans Render dashboard
+- [x] SPA routing: `/* → /index.html` rewrite in render.yaml ✓
+- [ ] GitHub repo `MyGreenCardToJob` créé et pushé — **ACTION REQUISE**
+- [ ] Secrets Render dashboard configurés — **ACTION REQUISE** (voir SS-2.2)
+- [ ] Blueprint deploy testé via "New Blueprint" sur Render — **ACTION REQUISE**
+
+## État du Sprint (2026-05-01)
+
+| Sub-Sprint | Statut | Notes |
+|------------|--------|-------|
+| SS-2.1 GitHub Setup | 🟡 Partiel | git init ✓, push GitHub en attente |
+| SS-2.2 Backend Render | 🟡 Prêt | render.yaml ✓, dashboard config en attente |
+| SS-2.3 Frontend Render | 🟡 Prêt | render.yaml ✓, VITE_API_URL en attente |
+| SS-2.4 GitHub Actions | ✅ Fait | `.github/workflows/ci.yml` opérationnel |
+| SS-2.5 Root render.yaml | ✅ Fait | Fichier créé à la racine |
+
+**Prochaine action** : pousser le repo sur GitHub et déclencher le Blueprint deploy sur Render.
