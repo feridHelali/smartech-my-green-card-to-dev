@@ -1,6 +1,7 @@
 require('@babel/register')
 
 const { PrismaClient } = require('@prisma/client')
+const bcrypt = require('bcrypt')
 const fs = require('fs')
 const path = require('path')
 
@@ -133,11 +134,151 @@ const articles = [
     tags: JSON.stringify(['git', 'version-control', 'feynman', 'beginner']),
     order: 2,
     file: 'feynman/02_git_explained.md'
+  },
+
+  // ── JavaScript Core ───────────────────────────────────────────────────────
+  {
+    slug: 'js-definition-versions-context',
+    title: 'JavaScript : Définition, Versions & Contexte',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Histoire de JS, versions ECMAScript, contextes client/serveur, moteurs JS. Challenges IT : facturation, paie, comptabilité.',
+    tags: JSON.stringify(['javascript', 'ecmascript', 'history', 'nodejs', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 1,
+    file: 'js-core/01_definition_versions_context.md'
+  },
+  {
+    slug: 'js-variables-types',
+    title: 'JavaScript : Variables & Types Primitifs',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'const/let/var, portée, hoisting, 7 types primitifs, opérateurs, conversion de types. Challenges IT : validation de facture, types de contrat, ratio de liquidité.',
+    tags: JSON.stringify(['javascript', 'variables', 'types', 'primitives', 'operators', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 2,
+    file: 'js-core/02_variables_types.md'
+  },
+  {
+    slug: 'js-data-structures-control-flow',
+    title: 'JavaScript : Structures de Données & Contrôle',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Arrays, objets, Map, Set, boucles, conditionnelles, déstructuration. Challenges IT : filtrage de factures, classement de salaires, grand livre.',
+    tags: JSON.stringify(['javascript', 'arrays', 'objects', 'map', 'set', 'loops', 'destructuring', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 3,
+    file: 'js-core/03_data_structures_control_flow.md'
+  },
+  {
+    slug: 'js-functions',
+    title: 'JavaScript : Fonctions (I, II & III)',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Déclarations, expressions, arrow functions, closures, scope, hoisting, HOF, currying, composition, memoization. Challenges IT : numéros de facture, grille de paie, amortissement.',
+    tags: JSON.stringify(['javascript', 'functions', 'closures', 'scope', 'hof', 'currying', 'composition', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 4,
+    file: 'js-core/04_functions.md'
+  },
+  {
+    slug: 'js-oop',
+    title: 'JavaScript : Programmation Orientée Objet',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Paradigmes, classes ES6, héritage, encapsulation, polymorphisme, prototype chain, mixins. Challenges IT : modèle facture OOP, hiérarchie employés, compte comptable.',
+    tags: JSON.stringify(['javascript', 'oop', 'classes', 'inheritance', 'prototype', 'encapsulation', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 5,
+    file: 'js-core/05_oop.md'
+  },
+  {
+    slug: 'js-async-promises',
+    title: 'JavaScript : Async & Promises',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Event loop, callbacks, Promises, async/await, Fetch API, gestion d\'erreurs, retry. Challenges IT : dashboard factures, paie parallèle, sync comptable.',
+    tags: JSON.stringify(['javascript', 'async', 'promises', 'await', 'fetch', 'event-loop', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 6,
+    file: 'js-core/06_async_promises.md'
+  },
+  {
+    slug: 'js-dom-bom',
+    title: 'JavaScript : DOM & BOM',
+    category: 'js-core',
+    type: 'lesson',
+    description: 'Sélecteurs, manipulation du DOM, événements, event delegation, forms, localStorage, sessionStorage, window/location. Challenges IT : UI factures CRUD, calcul paie temps réel, brouillon comptable.',
+    tags: JSON.stringify(['javascript', 'dom', 'bom', 'events', 'forms', 'localstorage', 'it-invoicing', 'it-payroll', 'it-accounting']),
+    order: 7,
+    file: 'js-core/07_dom_bom.md'
+  },
+
+  // ── JS Cheat Sheet ────────────────────────────────────────────────────────
+  {
+    slug: 'cheat-sheet-javascript-core',
+    title: 'JavaScript Core Cheat Sheet',
+    category: 'cheat-sheets',
+    type: 'cheat-sheet',
+    description: 'Référence complète ES6+ : variables, types, arrays, objects, functions, classes, async/await, DOM. Patterns courants pour IT.',
+    tags: JSON.stringify(['javascript', 'es6', 'cheat-sheet', 'reference', 'arrays', 'objects', 'async']),
+    order: 8,
+    file: 'cheat-sheets/08_javascript_core.md'
+  },
+
+  // ── JS Mind Map ───────────────────────────────────────────────────────────
+  {
+    slug: 'mindmap-javascript-core',
+    title: 'JavaScript Core — Mind Map',
+    category: 'mind-maps',
+    type: 'mind-map',
+    description: 'Vue d\'ensemble de JavaScript : fondamentaux, structures de données, fonctions, POO, async, DOM. Diagrammes Mermaid.',
+    tags: JSON.stringify(['javascript', 'mind-map', 'mermaid', 'architecture', 'event-loop', 'prototype']),
+    order: 4,
+    file: 'mind-maps/04_javascript_core.md'
   }
 ]
 
+const demoUsers = [
+  {
+    email: 'admin@alfacomputers.dz',
+    password: 'Admin@2026!',
+    name: 'Ferid HELALI',
+    role: 'admin',
+    picture: 'https://api.dicebear.com/7.x/initials/svg?seed=FH'
+  },
+  {
+    email: 'trainer@alfacomputers.dz',
+    password: 'Trainer@2026!',
+    name: 'Karim BENALI',
+    role: 'user',
+    picture: 'https://api.dicebear.com/7.x/initials/svg?seed=KB'
+  },
+  {
+    email: 'student@alfacomputers.dz',
+    password: 'Student@2026!',
+    name: 'Amira KHELIL',
+    role: 'user',
+    picture: 'https://api.dicebear.com/7.x/initials/svg?seed=AK'
+  }
+]
+
+async function seedUsers () {
+  console.log('\nSeeding users...')
+  for (const user of demoUsers) {
+    const hashed = await bcrypt.hash(user.password, 10)
+    await prisma.user.upsert({
+      where: { email: user.email },
+      create: { ...user, password: hashed },
+      update: { name: user.name, role: user.role, picture: user.picture }
+    })
+    console.log(`  ✓ ${user.name} (${user.role})`)
+  }
+  console.log(`Seeded ${demoUsers.length} users.`)
+}
+
 async function main () {
-  console.log('Seeding articles...')
+  console.log('=== Database Seed ===')
+
+  // ── Users ────────────────────────────────────────────────────────────────
+  await seedUsers()
+
+  // ── Articles ─────────────────────────────────────────────────────────────
+  console.log('\nSeeding articles...')
 
   for (const article of articles) {
     const { file, ...meta } = article
@@ -160,7 +301,7 @@ async function main () {
     console.log(`  ✓ ${meta.title}`)
   }
 
-  console.log(`\nSeeded ${articles.length} articles.`)
+  console.log(`\n✅ Seeded ${demoUsers.length} users + ${articles.length} articles.`)
 }
 
 main()

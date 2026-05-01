@@ -13,7 +13,9 @@
       "Bash(npm run *)",
       "Bash(npx tsc *)",
       "Bash(echo \"TSC_EXIT:$?\")",
-      "Bash(npx vite *)"
+      "Bash(npx vite *)",
+      "Bash(dir \"D:\\\\51_Smartec_Deployment_VPS_Cours_Bac\\\\formation_ingenieur_web_dev\\\\designDocs\\\\02_add_js_core_porogramming_docs\\\\pdfs\" /b)",
+      "Bash(findstr \".md\")"
     ]
   }
 }
